@@ -1,16 +1,24 @@
 import os
 import glob
 import pandas as pd
-os.chdir("Data_Set")
+os.chdir("../Data_Set")
 
 
-extension = 'csv'
-all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
+def read_combine():
+    df_red = pd.read_csv('../Data_Set/winequality-red.csv')
+    df_white = pd.read_csv('../Data_Set/winequality-red.csv')
 
-# combine all files in the list
-combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames])
-# export to csv
-combined_csv.to_csv("combined_csv.csv", index=False, encoding='utf-8-sig')
+    df_red['type'] = 0
+    df_white['type'] = 1
+
+    frames = [df_red, df_white]
+
+    df_combined = pd.concat(frames)
+
+    # # export to csv
+    df_combined.to_csv("df_combined.csv", index=False, encoding='utf-8-sig')
+
+    print(df_combined.head)
 
 
-# Function to add feature
+read_combine()
