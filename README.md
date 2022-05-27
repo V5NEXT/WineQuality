@@ -1,2 +1,2 @@
 # WineQuality
-Wine Quality Prediction
+Wine Quality Dataset Prediction
