@@ -77,6 +77,10 @@ def split_dataset():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.33, random_state=101)
 
+    # Use the same function above for the validation set
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
+                                                      test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
+
     print("##################### Length #####################")
     print(f'Total # of sample in whole dataset: {len(X_train)+len(X_test)}')
     print(f'Total # of sample in train dataset: {len(X_train)}')
@@ -91,7 +95,6 @@ def split_dataset():
         f'Percentage of train dataset: {round((len(X_train)/(len(X_train)+len(X_test)))*100,2)}%')
     print(
         f'Percentage of validation dataset: {round((len(X_test)/(len(X_train)+len(X_test)))*100,2)}%')
-    check_df(new_df)
 
 
 split_dataset()
