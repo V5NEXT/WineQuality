@@ -71,15 +71,23 @@ def basic_preprocessing():
 
 def split_dataset():
     new_df = basic_preprocessing()
-    X = new_df.drop(['quality'], axis=1)
-    y = new_df.quality
+    train = new_df.drop(['quality'], axis=1)
+    test = new_df.quality
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.33, random_state=101)
+    # set aside 20% of train and test data for evaluation
+    X_train, X_test, y_train, y_test = train_test_split(train, test,
+                                                        test_size=0.2, shuffle=True, random_state=8)
 
     # Use the same function above for the validation set
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
                                                       test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
+
+    print("X_train shape: {}".format(X_train.shape))
+    print("X_test shape: {}".format(X_test.shape))
+    print("y_train shape: {}".format(y_train.shape))
+    print("y_test shape: {}".format(y_test.shape))
+    print("X_val shape: {}".format(y_train.shape))
+    print("y val shape: {}".format(y_test.shape))
 
     print("##################### Length #####################")
     print(f'Total # of sample in whole dataset: {len(X_train)+len(X_test)}')
