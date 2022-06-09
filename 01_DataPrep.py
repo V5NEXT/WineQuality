@@ -6,7 +6,7 @@ import seaborn as sb
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
-os.chdir("../Data_Set")
+os.chdir("Data_Set")
 
 combined_df = pd.DataFrame
 new_df = pd.DataFrame
@@ -84,10 +84,10 @@ def split_dataset():
 
     print("X_train shape: {}".format(X_train.shape))
     print("X_test shape: {}".format(X_test.shape))
-    print("y_train shape: {}".format(y_train.shape))
+    print("y_train shape: {}".format(X_val.shape))
     print("y_test shape: {}".format(y_test.shape))
     print("X_val shape: {}".format(y_train.shape))
-    print("y val shape: {}".format(y_test.shape))
+    print("y val shape: {}".format(y_val.shape))
 
     print("##################### Length #####################")
     print(f'Total # of sample in whole dataset: {len(X_train)+len(X_test)}')
@@ -103,6 +103,8 @@ def split_dataset():
         f'Percentage of train dataset: {round((len(X_train)/(len(X_train)+len(X_test)))*100,2)}%')
     print(
         f'Percentage of validation dataset: {round((len(X_test)/(len(X_train)+len(X_test)))*100,2)}%')
+
+    return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 split_dataset()
