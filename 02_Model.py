@@ -123,6 +123,7 @@ def ClassificationModel3():
 def ClassficationFinalModel():
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.model_selection import cross_val_score
+    from sklearn.model_selection import RandomizedSearchCV
 
     rf_model = RandomForestClassifier(random_state=2020)
     rf_model.fit(X_train, y_train)
@@ -143,6 +144,16 @@ def ClassficationFinalModel():
 # Even though random forest has corrected for decision tree’s habit of overfitting (to some extent),
 #  the disparity between cross validation score and training accuracy here indicates that our random forest model is still overfitting a bit.
 #  Similar to decision tree, we can prune some hyperparameters such as max-depth and n_estimators by using GridSearchCV to address overfitting.
+    print(rf_model.get_params())
+
+# fine tuning by changing the number of estimators and depth
+
+    random_grid = {'max_depth': [1, 5, 10, 15],
+                   'n_estimators': [100, 200, 300, 400, 500, 600]}
+    rf_random = RandomizedSearchCV(
+        rf_model, random_grid, n_iter=50, cv=5, random_state=2020)
+    rf_random.fit(X_train, y_train)
+    print(rf_random.best_params_)
 
 
 ClassficationFinalModel()
