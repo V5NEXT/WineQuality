@@ -88,9 +88,6 @@ def Classification_Model1():
     # print(metrics.accuracy_score(y_test, y_pred_new))
 
 
-# Classification_Model1()
-
-
 # Decisson Tree
 def ClassificationModel2():
     from sklearn.tree import DecisionTreeClassifier
@@ -104,4 +101,35 @@ def ClassificationModel2():
     print(metrics.accuracy_score(y_test, y_pred))
 
 
-ClassificationModel2()
+# Random Forest
+
+def ClassificationModel3():
+    from sklearn.ensemble import RandomForestClassifier
+    rf_model = RandomForestClassifier(random_state=2020)
+    rf_model.fit(X_train, y_train)
+    y_pred_rf = rf_model.predict(X_test)
+    acc_rf = accuracy_score(y_test, y_pred_rf)
+    print('Accuracy = ', acc_rf)
+
+
+Classification_Model1()  # 81.307
+ClassificationModel2()  # 82.538
+ClassificationModel3()  # 87.846
+
+
+# Since Classification Model3 (Random Forest Classfier yielded the best results I am considering it as the main Model)
+
+
+def ClassficationFinalModel():
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.model_selection import cross_val_score
+
+    rf_model = RandomForestClassifier(random_state=2020)
+    rf_model.fit(X_train, y_train)
+    y_pred_rf = rf_model.predict(X_test)
+    acc_rf = accuracy_score(y_test, y_pred_rf)
+    print('Accuracy = ', acc_rf)
+
+    # prevent overfitting
+    scores = cross_val_score(rf_model, X, y, cv=5)
+    print("Cross Validation Score: ", scores.mean())
