@@ -112,9 +112,9 @@ def ClassificationModel3():
     print('Accuracy = ', acc_rf)
 
 
-Classification_Model1()  # 81.307
-ClassificationModel2()  # 82.538
-ClassificationModel3()  # 87.846
+# Classification_Model1()  # 81.307
+# ClassificationModel2()  # 82.538
+# ClassificationModel3()  # 87.846
 
 
 # Since Classification Model3 (Random Forest Classfier yielded the best results I am considering it as the main Model)
@@ -131,5 +131,18 @@ def ClassficationFinalModel():
     print('Accuracy = ', acc_rf)
 
     # prevent overfitting
+    X, y = data_prep.basic_preprocessing()
+
     scores = cross_val_score(rf_model, X, y, cv=5)
     print("Cross Validation Score: ", scores.mean())
+
+    y_pred_train = rf_model.predict(X_train)
+    print(metrics.accuracy_score(y_train, y_pred_train))
+
+
+# Even though random forest has corrected for decision tree’s habit of overfitting (to some extent),
+#  the disparity between cross validation score and training accuracy here indicates that our random forest model is still overfitting a bit.
+#  Similar to decision tree, we can prune some hyperparameters such as max-depth and n_estimators by using GridSearchCV to address overfitting.
+
+
+ClassficationFinalModel()
