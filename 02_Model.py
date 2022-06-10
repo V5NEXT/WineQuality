@@ -1,3 +1,4 @@
+from sklearn.dummy import DummyClassifier
 import pandas as pd
 import numpy as np
 import seaborn as sb
@@ -7,18 +8,18 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline, make_pipeline
 import sklearn.metrics
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import classification_report
+# from sklearn.metrics import confusion_matrix
+# from sklearn.metrics import classification_report
 
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.linear_model import SGDClassifier
+# from sklearn.svm import SVC
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.ensemble import GradientBoostingClassifier
+# from sklearn.linear_model import SGDClassifier
 
-from sklearn.preprocessing import MinMaxScaler
+# from sklearn.preprocessing import MinMaxScaler
 
 
 data_prep = __import__('01_DataPrep')
@@ -32,105 +33,70 @@ for attr in attrlist:
 X_train, X_val, X_test, y_train, y_val, y_test = data_prep.split_dataset()
 
 
-scaler = MinMaxScaler()
+# Using a Dummy Classifer for checking scores
+print(X_test)
+print(y_test)
 
-scaler.fit(X_train)
-
-X_train = scaler.transform(X_train)
-X_test = scaler.transform(X_test)
-
-
-pipeline_SVM = Pipeline([("scaler", MinMaxScaler()),
-                         ("pipeline_SVM", SVC())])
-
-pipeline_KNN = Pipeline([("scaler", MinMaxScaler()),
-                         ("pipeline_KNN", KNeighborsClassifier())])
-
-pipeline_LR = Pipeline([("scaler", MinMaxScaler()),
-                        ("pipeline_LogisticRegression", LogisticRegression())])
-
-pipeline_DT = Pipeline([("scaler", MinMaxScaler()),
-                        ("pipeline_DecisionTree", DecisionTreeClassifier())])
-
-pipeline_RF = Pipeline([("scaler", MinMaxScaler()),
-                        ("pipeline_RandomForest", RandomForestClassifier())])
-
-pipeline_GBC = Pipeline([("scaler", MinMaxScaler()), (
-                        "pipeline_GBC", GradientBoostingClassifier())])
-
-pipeline_SGD = Pipeline([("scaler", MinMaxScaler()),
-                        ("pipeline_SGD", SGDClassifier(max_iter=5000, random_state=0))])
+dummy_classifier = DummyClassifier(strategy='most_frequent', random_state=2020)
+dummy_classifier.fit(X_train, y_train)
+acc_baseline = dummy_classifier.score(X_test, y_test)
+print("Baseline Accuracy = ", acc_baseline)
 
 
-pipelines = [pipeline_SVM, pipeline_KNN, pipeline_LR, pipeline_DT, pipeline_RF, pipeline_GBC,
-             pipeline_SGD]
+# model1 : Support Vector Classifier
+def Classification_Model1():
+    from sklearn.svm import SVC
+    svc = SVC(random_state=2020)
+    svc.fit(X_train, y_train)
 
-pipe_dict = {0: "SupportVectorClassifier",
-             1: "KNeighborsClassifier",
-             2: "LogisticRegression",
-             3: "DecisionTreeClassifier",
-             4: "RandomForestClassifier",
-             5: "GradientBoostingClassifier",
-             6: "XGBClassifier",
-             7: "LGBMClassifier",
-             8: "SGDClassifier"}
+    from sklearn import metrics
+    from sklearn.metrics import accuracy_score
+    y_pred = svc.predict(X_test)
+    print(metrics.accuracy_score(y_test, y_pred))
 
-modelNames = ["SupportVectorClassifier", "KNeighborsClassifier", "LogisticRegression", "DecisionTreeClassifier",
-              "RandomForestClassifier", "GradientBoostingClassifier", "XGBClassifier", "LGBMClassifier", "SGDClassifier"]
+    # prevent overfitting
 
-i = 0
-trainScores = []
-testScores = []
+    from sklearn.model_selection import cross_val_score
+    X, y = data_prep.basic_preprocessing()
+    scores = cross_val_score(svc, X, y, cv=5)
+    print(scores.mean())
 
-for pipe in pipelines:
-    pipe.fit(X_train, y_train)
-    print(f'{pipe_dict[i]}')
-    print("Train Score of %s: %f     " %
-          (pipe_dict[i], pipe.score(X_train, y_train)*100))
-    trainScores.append(pipe.score(X_train, y_train)*100)
+    y_pred_train = svc.predict(X_train)
+    print(metrics.accuracy_score(y_train, y_pred_train))
 
-    print("Test Score of %s: %f      " %
-          (pipe_dict[i], pipe.score(X_test, y_test)*100))
-    testScores.append(pipe.score(X_test, y_test)*100)
-    print(" ")
+    # regularixation using randomizedSearch CV
+    from sklearn.model_selection import RandomizedSearchCV
+    random_grid = {"C": [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+    svc_random = RandomizedSearchCV(svc, random_grid, cv=5, random_state=2020)
+    svc_random.fit(X_train, y_train)
+    print(svc_random.best_params_)
 
-    y_predictions = pipe.predict(X_test)
-    conf_matrix = confusion_matrix(y_predictions, y_test)
-    print(f'Confussion Matrix: \n{conf_matrix}\n')
-    tn = conf_matrix[0, 0]
-    fp = conf_matrix[0, 1]
-    tp = conf_matrix[1, 1]
-    fn = conf_matrix[1, 0]
+    # using gridsearchCV
+    from sklearn.model_selection import GridSearchCV
+    param_dist = {'C': [0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4],
+                  'kernel': ['linear', 'rbf', 'poly']}
+    svc_cv = GridSearchCV(svc, param_dist, cv=10)
+    svc_cv.fit(X_train, y_train)
+    print(svc_cv.best_params_)
 
-    total = tn + fp + tp + fn
-    real_positive = tp + fn
-    real_negative = tn + fp
+    # final SVM model (after finding best params)
+    svc_new = SVC(C=1.3, kernel="rbf", random_state=2020)
+    svc_new.fit(X_train, y_train)
+    y_pred_new = svc_new.predict(X_test)
+    print(metrics.accuracy_score(y_test, y_pred_new))
 
-    accuracy = (tp + tn) / total  # Accuracy Rate
-    precision = tp / (tp + fp)  # Positive Predictive Value
-    recall = tp / (tp + fn)  # True Positive Rate
-    f1score = 2 * precision * recall / (precision + recall)
-    specificity = tn / (tn + fp)  # True Negative Rate
-    error_rate = (fp + fn) / total  # Missclassification Rate
-    prevalence = real_positive / total
-    miss_rate = fn / real_positive  # False Negative Rate
-    fall_out = fp / real_negative  # False Positive Rate
 
-    print('Evaluation Metrics:')
-    print(f'Accuracy    : {accuracy}')
-    print(f'Precision   : {precision}')
-    print(f'Recall      : {recall}')
-    print(f'F1 score    : {f1score}')
-    print(f'Specificity : {specificity}')
-    print(f'Error Rate  : {error_rate}')
-    print(f'Prevalence  : {prevalence}')
-    print(f'Miss Rate   : {miss_rate}')
-    print(f'Fall Out    : {fall_out}')
+# Classification_Model1()
 
-    print("")
-    print(
-        f'Classification Report: \n{classification_report(y_predictions, y_test)}\n')
-    print("")
 
-    print("*****"*20)
-    i += 1
+# Decisson Tree
+def ClassificationModel2():
+    from sklearn.tree import DecisionTreeClassifier
+    dt = DecisionTreeClassifier(random_state=2020)
+    dt.fit(X_train, y_train)
+
+    from sklearn.metrics import plot_confusion_matrix
+    y_pred = dt.predict(X_test)
+    metrics.plot_confusion_matrix(dt, X_test, y_test)
+    plt.show()
+    print(metrics.accuracy_score(y_test, y_pred))

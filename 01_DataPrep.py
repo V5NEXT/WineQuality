@@ -5,6 +5,9 @@ import numpy as np
 import seaborn as sb
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+import seaborn as sns
+
 
 os.chdir("Data_Set")
 
@@ -65,19 +68,31 @@ def basic_preprocessing():
     # We see that there are not many null values are present in our data so we simply fill them with the help of the fillna() function
 
     new_df.update(new_df.fillna(new_df.mean()))
+    scaler = MinMaxScaler(feature_range=(0, 1))
 
-    return new_df
+    normal_df = scaler.fit_transform(new_df)
+    normal_df = pd.DataFrame(normal_df, columns=new_df.columns)
+    print(normal_df.head())
+
+    new_df["good wine"] = ["yes" if i >=
+                           7 else "no" for i in new_df['quality']]
+
+    X = normal_df.drop(["quality"], axis=1)
+    y = new_df["good wine"]
+
+    y.value_counts()
+    sns.countplot(y)
+    plt.show()
+
+    return X, y
 
 
 def split_dataset():
-    new_df = basic_preprocessing()
-    train = new_df.drop(['quality'], axis=1)
-    test = new_df.quality
+    train, test = basic_preprocessing()
 
     # set aside 20% of train and test data for evaluation
     X_train, X_test, y_train, y_test = train_test_split(train, test,
                                                         test_size=0.2, shuffle=True, random_state=8)
-
     # Use the same function above for the validation set
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
                                                       test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
