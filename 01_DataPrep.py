@@ -122,4 +122,15 @@ def split_dataset():
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-split_dataset()
+def split_dataset_classification():
+    combined_df = get_combined_dataset()
+
+    X = combined_df.ix[:, 0:11]
+    y = np.ravel(combined_df.type)
+
+    # Splitting the data set for training and validating
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.34, random_state=45)
+
+    return X_train, X_test, y_train, y_test
+# split_dataset()

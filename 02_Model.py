@@ -46,7 +46,7 @@ print("Baseline Accuracy = ", acc_baseline)
 
 
 # model1 : Support Vector Classifier
-def Classification_Model1():
+def RegressionModel1():
     from sklearn.svm import SVC
     svc = SVC(random_state=2020)
     svc.fit(X_train, y_train)
@@ -89,7 +89,7 @@ def Classification_Model1():
 
 
 # Decisson Tree
-def ClassificationModel2():
+def RegressionModel2():
     from sklearn.tree import DecisionTreeClassifier
     dt = DecisionTreeClassifier(random_state=2020)
     dt.fit(X_train, y_train)
@@ -103,7 +103,7 @@ def ClassificationModel2():
 
 # Random Forest
 
-def ClassificationModel3():
+def RegressionModel3():
     from sklearn.ensemble import RandomForestClassifier
     rf_model = RandomForestClassifier(random_state=2020)
     rf_model.fit(X_train, y_train)
@@ -112,15 +112,15 @@ def ClassificationModel3():
     print('Accuracy = ', acc_rf)
 
 
-# Classification_Model1()  # 81.307
-# ClassificationModel2()  # 82.538
-# ClassificationModel3()  # 87.846
+# RegressionModel1()  # 81.307
+# RegressionModel2()  # 82.538
+# RegressionModel3()  # 87.846
 
 
 # Since Classification Model3 (Random Forest Classfier yielded the best results I am considering it as the main Model)
 
 
-def ClassficationFinalModel():
+def RegressionFinalModel():
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.model_selection import cross_val_score
     from sklearn.model_selection import RandomizedSearchCV
@@ -154,6 +154,60 @@ def ClassficationFinalModel():
         rf_model, random_grid, n_iter=50, cv=5, random_state=2020)
     rf_random.fit(X_train, y_train)
     print(rf_random.best_params_)
+    rf_new = RandomForestClassifier(
+        n_estimators=450, max_depth=14, random_state=2020)
+    rf_new.fit(X_train, y_train)
+    y_pred_rf = rf_new.predict(X_test)
+    acc_rf = accuracy_score(y_test, y_pred_rf)
+    print('Accuracy = ', acc_rf)
+    scores = cross_val_score(rf_new, X, y, cv=5)
+    print("Cross Validation Score: ", scores.mean())
 
 
-ClassficationFinalModel()
+# RegressionFinalModel()
+
+
+# Prediction of Wine Type
+
+
+def ClassificationModel():
+    # Import `Sequential` from `keras.models`
+    from keras.models import Sequential
+
+    # Import `Dense` from `keras.layers`
+    from keras.layers import Dense
+    X_train, X_test, y_train, y_test = data_prep.split_dataset_classification()
+
+    # Initialize the constructor
+    model = Sequential()
+
+    # Add an input layer
+    model.add(Dense(12, activation='relu', input_shape=(11, )))
+
+    # Add one hidden layer
+    model.add(Dense(9, activation='relu'))
+
+    # Add an output layer
+    model.add(Dense(1, activation='sigmoid'))
+
+    # Model output shape
+    model.output_shape
+
+    # Model summary
+    model.summary()
+
+    # Model config
+    model.get_config()
+
+    # List all weight tensors
+    model.get_weights()
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam', metrics=['accuracy'])
+
+    # Training Model
+    model.fit(X_train, y_train, epochs=3,
+              batch_size=1, verbose=1)
+
+    # Predicting the Value
+    y_pred = model.predict(X_test)
+    print(y_pred)
