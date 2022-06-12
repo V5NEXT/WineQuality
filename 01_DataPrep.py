@@ -125,12 +125,19 @@ def split_dataset():
 def split_dataset_classification():
     combined_df = get_combined_dataset()
 
-    X = combined_df.ix[:, 0:11]
-    y = np.ravel(combined_df.type)
+    X = combined_df.iloc[:, 0:11]
+    y = np.ravel(combined_df.wine_type)
 
     # Splitting the data set for training and validating
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.34, random_state=45)
+        X, y, test_size=0.2, random_state=45)
 
-    return X_train, X_test, y_train, y_test
+    # Use the same function above for the validation set
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
+                                                      test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
+
+    return X_train, X_test, y_train, y_test, X_val, y_val
 # split_dataset()
+
+
+# split_dataset_classification()

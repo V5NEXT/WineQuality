@@ -1,7 +1,9 @@
+from gc import callbacks
 from sklearn.dummy import DummyClassifier
 import pandas as pd
 import numpy as np
 import seaborn as sb
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
 
@@ -34,6 +36,26 @@ for attr in attrlist:
 
 X_train, X_val, X_test, y_train, y_val, y_test = data_prep.split_dataset()
 
+
+def plotValLossAndLoss(history):
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    plt.plot(loss, label='loss')
+    plt.plot(val_loss, label='val_loss')
+    plt.ylim([0, max([max(loss), max(val_loss)])])
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+# model callbacks
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor="val_loss", patience=0)  # val_loss
+
+
+callbacks = [early_stopping]
 
 # Using a Dummy Classifer for checking scores
 print(X_test)
@@ -176,7 +198,7 @@ def ClassificationModel():
 
     # Import `Dense` from `keras.layers`
     from keras.layers import Dense
-    X_train, X_test, y_train, y_test = data_prep.split_dataset_classification()
+    X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
 
     # Initialize the constructor
     model = Sequential()
@@ -203,11 +225,15 @@ def ClassificationModel():
     model.get_weights()
     model.compile(loss='binary_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
-
     # Training Model
-    model.fit(X_train, y_train, epochs=3,
-              batch_size=1, verbose=1)
+    history = model.fit(X_train, y_train, epochs=10,
+                        batch_size=1, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
+
+    plotValLossAndLoss(history)
 
     # Predicting the Value
     y_pred = model.predict(X_test)
     print(y_pred)
+
+
+ClassificationModel()
