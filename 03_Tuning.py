@@ -300,3 +300,59 @@ def AddingDropOut():
         history_frame['val_loss'].min()))
     print("Minimum Validation MAE (mean absolute error): {:0.4f}".format(
         history_frame['val_mae'].min()))
+
+
+def Batch_Normalization():
+    # Define model
+    # Add batch normalization layers
+    model = keras.Sequential([
+        layers.Dense(2 ** 10, activation='relu', input_shape=input_shape),
+        layers.Dropout(0.2),
+        layers.BatchNormalization(),
+        layers.Dense(2 ** 10, activation='relu'),
+        layers.Dropout(0.2),
+        layers.BatchNormalization(),
+        layers.Dense(2 ** 10, activation='relu'),
+        layers.Dropout(0.2),
+        layers.BatchNormalization(),
+        layers.Dense(2 ** 10, activation='relu'),
+        layers.Dropout(0.2),
+        layers.BatchNormalization(),
+        layers.Dense(2 ** 10, activation='relu'),
+        layers.Dropout(0.2),
+        layers.BatchNormalization(),
+        layers.Dense(1),
+    ])
+
+    # Compile in the optimizer and loss function
+    model.compile(
+        optimizer='adam',
+        loss='mse',
+        metrics=['mae']
+    )
+
+    # Fit model (and save training history)
+    # (Add callbacks)
+    history = model.fit(
+        X_train, y_train,
+        validation_data=(X_valid, y_valid),
+        batch_size=BATCH_SIZE,
+        epochs=EPOCHS,
+        callbacks=[early_stopping, lr_schedule],
+        verbose=1,  # suppress output since we'll plot the curves
+    )
+
+    # Convert the training history to a dataframe
+    history_frame = pd.DataFrame(history.history)
+
+    # Plot training history
+    history_frame.loc[0:, ['loss', 'val_loss']].plot()
+    history_frame.loc[0:, ['mae', 'val_mae']].plot()
+
+    print("Minimum Validation Loss: {:0.4f}".format(
+        history_frame['val_loss'].min()))
+    print("Minimum Validation MAE (mean absolute error): {:0.4f}".format(
+        history_frame['val_mae'].min()))
+
+
+Batch_Normalization()
