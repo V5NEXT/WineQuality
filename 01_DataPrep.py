@@ -153,8 +153,9 @@ def regressionPreprocess():
     # Processed Features (training set - in DataFrame form)
     print(pd.DataFrame(X_train).head())
 
+    return X_train, X_valid, y_train, y_valid
 
-regressionPreprocess()
+
 ########################################################################################
 #################*******  Classification   *******##########################################
 ########################################################################################
