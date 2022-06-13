@@ -1,3 +1,4 @@
+from operator import ge
 import os
 import glob
 import pandas as pd
@@ -5,6 +6,9 @@ import numpy as np
 import seaborn as sb
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import make_column_transformer
+from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import MinMaxScaler
 import seaborn as sns
 
@@ -85,6 +89,75 @@ def basic_preprocessing():
     plt.show()
 
     return X, y
+
+
+########################################################################################
+#################*******  Regression   *******##########################################
+########################################################################################
+
+
+def split_data_regression(combined_df):
+    ds_train, val_test_ds = train_test_split(
+        combined_df, test_size=0.2, random_state=1)
+    ds_valid, ds_test = train_test_split(
+        val_test_ds, test_size=0.5, random_state=1)
+    return ds_train, ds_valid, ds_test
+
+
+def load_data(ds_train, ds_test):
+    transformer_cat = make_pipeline(
+        # SimpleImputer(strategy="constant", fill_value="NA"), # Fortunately, no missing values
+        OneHotEncoder(handle_unknown='ignore'),
+    )
+    transformer_num = make_pipeline(
+        # SimpleImputer(strategy="constant"), # Fortunately, no missing values
+        MinMaxScaler(),
+    )
+
+    features_num = [
+        'fixed acidity', 'volatile acidity', 'citric acid',
+        'residual sugar', 'chlorides', 'free sulfur dioxide',
+        'total sulfur dioxide', 'density', 'pH', 'sulphates',
+        'alcohol'
+    ]
+
+    features_cat = ["wine_type"]
+
+    preprocessor = make_column_transformer(
+        (transformer_num, features_num),
+        (transformer_cat, features_cat),
+    )
+
+    X_train = ds_train.drop('quality', axis=1)
+    X_train = pd.DataFrame(preprocessor.fit_transform(X_train))
+    X_train.columns = features_num + [1, 0]
+
+    y_train = ds_train['quality']
+
+    X_test = ds_test.drop('quality', axis=1)
+    X_test = pd.DataFrame(preprocessor.transform(X_test))
+    X_test.columns = features_num + [1, 0]
+
+    y_test = ds_test['quality']
+
+    return X_train, X_test, y_train, y_test
+
+
+def regressionPreprocess():
+
+    # Execute load_data() for training
+    df = get_combined_dataset()
+    ds_train, ds_valid, ds_test = split_data_regression(df)
+    X_train, X_valid, y_train, y_valid = load_data(ds_train, ds_valid)
+
+    # Processed Features (training set - in DataFrame form)
+    print(pd.DataFrame(X_train).head())
+
+
+regressionPreprocess()
+########################################################################################
+#################*******  Classification   *******##########################################
+########################################################################################
 
 
 def split_dataset():
