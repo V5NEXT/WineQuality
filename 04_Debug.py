@@ -1,4 +1,3 @@
-
 # Cross Validation Classification Accuracy
 import pandas
 from sklearn import model_selection
