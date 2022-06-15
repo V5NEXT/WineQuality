@@ -6,6 +6,7 @@ import numpy as np
 import seaborn as sb
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_absolute_error
 
 
 from sklearn.preprocessing import StandardScaler
@@ -355,4 +356,76 @@ def Batch_Normalization():
         history_frame['val_mae'].min()))
 
 
-Batch_Normalization()
+# Batch_Normalization()
+
+def FinalModel():
+    # Combine training set and validation set to train final model
+    combined_dataset = data_prep.get_combined_dataset()
+    ds_train, ds_valid, ds_test = data_prep.split_data_regression(
+        combined_dataset)
+    ds_train = ds_train.append(ds_valid)
+
+    # Execute load_data() for prediction
+    X_train, X_test, y_train, y_test = data_prep.load_data(ds_train, ds_test)
+
+    # Training configuration
+    BATCH_SIZE = 2 ** 8
+
+    # Model Configuration
+    UNITS = 2 ** 10
+    ACTIVATION = 'relu'
+    DROPOUT = 0.2
+
+    # Build final model from scratch
+
+    def dense_block(units, activation, dropout_rate, l1=None, l2=None):
+        def make(inputs):
+            x = layers.Dense(units)(inputs)
+            x = layers.Activation(activation)(x)
+            x = layers.Dropout(dropout_rate)(x)
+            x = layers.BatchNormalization()(x)
+            return x
+        return make
+
+    # Model
+    inputs = keras.Input(shape=(13,))
+    x = dense_block(UNITS, ACTIVATION, DROPOUT)(inputs)
+    x = dense_block(UNITS, ACTIVATION, DROPOUT)(x)
+    x = dense_block(UNITS, ACTIVATION, DROPOUT)(x)
+    x = dense_block(UNITS, ACTIVATION, DROPOUT)(x)
+    x = dense_block(UNITS, ACTIVATION, DROPOUT)(x)
+    outputs = layers.Dense(1)(x)
+    model = keras.Model(inputs=inputs, outputs=outputs)
+
+    # Compile in the optimizer and loss function
+    model.compile(
+        optimizer='adam',
+        loss='mse',
+        metrics=['mae']
+    )
+
+    # Fit model (and save training history)
+    history = model.fit(
+        X_train, y_train,
+        batch_size=BATCH_SIZE,
+        epochs=200,
+        verbose=0,
+    )
+
+    from joblib import Parallel, delayed
+    import joblib
+
+
+# Save the model as a pickle in a file
+
+    joblib.dump(model, 'regression_final_Model.pkl')
+
+    # # Making predictions from test set
+    # predictions = model.predict(X_test)
+
+    # # Evaluate
+    # model_score = mean_absolute_error(y_test, predictions)
+    # print("Final model score (MAE):", model_score)
+
+
+FinalModel()
