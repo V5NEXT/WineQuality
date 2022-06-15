@@ -90,4 +90,32 @@ def Shap_processing():
                     X_test_frame[X_test_frame['red'] == 1].iloc[INSTANCE_NUM, :-2])
 
 
+# white wine
+
+    # Extract Shapley values from the explainer
+    # Select test data representing white wine category
+    shap_values = explainer.shap_values(
+        X_test_frame[X_test_frame['white'] == 1][:400])
+
+    # Summarize the Shapley values in a plot
+    plt.title('Feature impact on model output')
+    shap.summary_plot(
+        shap_values[0][:, :-2], X_test_frame[X_test_frame['white'] == 1][:400].iloc[:, :-2][:400])
+
+    # Plot the SHAP values for one white wine sample
+    INSTANCE_NUM = 42
+
+    shap.initjs()
+    shap.force_plot(explainer.expected_value[0], shap_values[0][INSTANCE_NUM, :-2],
+                    X_test_frame[X_test_frame['white'] == 1].iloc[INSTANCE_NUM, :-2])
+
+    # Plot the SHAP values for multiple white wine samples
+
+    INSTANCE_NUM = list(np.arange(100))
+
+    shap.initjs()
+    shap.force_plot(explainer.expected_value[0], shap_values[0][INSTANCE_NUM, :-2],
+                    X_test_frame[X_test_frame['white'] == 1].iloc[INSTANCE_NUM, :-2])
+
+
 Shap_processing()
