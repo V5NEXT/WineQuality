@@ -358,7 +358,7 @@ def Batch_Normalization():
 
 # Batch_Normalization()
 
-def FinalModel():
+def FinalModelRegression():
     # Combine training set and validation set to train final model
     combined_dataset = data_prep.get_combined_dataset()
     ds_train, ds_valid, ds_test = data_prep.split_data_regression(
@@ -418,7 +418,7 @@ def FinalModel():
 
 # Save the model as a pickle in a file
 
-    joblib.dump(model, 'regression_final_Model.pkl')
+    joblib.dump(model, '/regression_final_Model.pkl')
 
     # # Making predictions from test set
     # predictions = model.predict(X_test)
@@ -428,4 +428,4 @@ def FinalModel():
     # print("Final model score (MAE):", model_score)
 
 
-FinalModel()
+FinalModelRegression()

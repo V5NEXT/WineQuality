@@ -49,3 +49,23 @@ def ClassificationReport():
 ##################################################################################################
 # ************************* Regression Model Evaluation ***************************************
 ##################################################################################################
+
+def MeanAbsolute_Error():
+    scoring = 'neg_mean_absolute_error'
+    results = model_selection.cross_val_score(
+        model, X, Y, cv=kfold, scoring=scoring)
+    print("MAE: %.3f (%.3f)" % (results.mean(), results.std()))
+
+
+def MeanSquaredError():
+    scoring = 'neg_mean_squared_error'
+    results = model_selection.cross_val_score(
+        model, X, Y, cv=kfold, scoring=scoring)
+    print("MSE: %.3f (%.3f)" % (results.mean(), results.std()))
+
+
+def R2Matrics():
+    scoring = 'r2'
+    results = model_selection.cross_val_score(
+        model, X, Y, cv=kfold, scoring=scoring)
+    print("R^2: %.3f (%.3f)" % (results.mean(), results.std()))
