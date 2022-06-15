@@ -6,31 +6,15 @@ import numpy as np
 import seaborn as sb
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_absolute_error
-
-
+from keras.models import Sequential
+from keras.layers import Dense
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline, make_pipeline
-import sklearn.metrics
-from sklearn import metrics
-from sklearn.metrics import accuracy_score
-import joblib
-import pickle
-import os
 
 # Model
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import callbacks
 
-##################################################################################################
-#************************* Classification Model Tuning **********************************************#
-##################################################################################################
-
-
-##################################################################################################
-#************************* Regression Model Tuning **********************************************#
-##################################################################################################
 
 data_prep = __import__('01_DataPrep')
 try:
@@ -39,6 +23,63 @@ except AttributeError:
     attrlist = dir(data_prep)
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
+
+##################################################################################################
+#************************* Classification Model Tuning **********************************************#
+##################################################################################################
+
+
+def Changing_Layers_Classification():
+    X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
+
+    # Initialize the constructor
+    model = Sequential()
+
+    # Add an input layer
+    model.add(Dense(12, activation='relu', input_shape=(11, )))
+
+    # Add two hidden layer
+    model.add(Dense(9, activation='relu'))
+
+    model.add(Dense(9, activation='relu'))
+
+    # Add an output layer
+    model.add(Dense(1, activation='sigmoid'))
+
+    # Model output shape
+    model.output_shape
+
+    # Model summary
+    model.summary()
+
+    # Model config
+    model.get_config()
+
+    # List all weight tensors
+    model.get_weights()
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam', metrics=['accuracy'])
+    # Training Model
+    history = model.fit(X_train, y_train, epochs=10,
+                        batch_size=1, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
+
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    plt.plot(loss, label='loss')
+    plt.plot(val_loss, label='val_loss')
+    plt.ylim([0, max([max(loss), max(val_loss)])])
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+Changing_Layers_Classification()
+##################################################################################################
+#************************* Regression Model Tuning **********************************************#
+##################################################################################################
+
 
 EPOCHS = 300
 BATCH_SIZE = 2 ** 8  # 256
@@ -412,20 +453,13 @@ def FinalModelRegression():
         verbose=0,
     )
 
-    from joblib import Parallel, delayed
-    import joblib
+    # serialize model to JSON
+    model_json = model.to_json()
+    with open("regression_model.json", "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights("regression_model.h5")
+    print("Saved model to disk")
 
 
-# Save the model as a pickle in a file
-
-    joblib.dump(model, '/regression_final_Model.pkl')
-
-    # # Making predictions from test set
-    # predictions = model.predict(X_test)
-
-    # # Evaluate
-    # model_score = mean_absolute_error(y_test, predictions)
-    # print("Final model score (MAE):", model_score)
-
-
-FinalModelRegression()
+# FinalModelRegression()

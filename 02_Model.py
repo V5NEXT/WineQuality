@@ -70,7 +70,7 @@ callbacks = [early_stopping]
 # Prediction of Wine Type
 
 
-def ClassificationModel():
+def BaseClassificationModel():
     # Import `Sequential` from `keras.models`
     from keras.models import Sequential
 
@@ -107,18 +107,12 @@ def ClassificationModel():
     history = model.fit(X_train, y_train, epochs=10,
                         batch_size=1, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
 
-    plotValLossAndLoss(history)
-
-    # Predicting the Value
-    y_pred = model.predict(X_test)
-    print(y_pred)
-
-    filename = "finalized_model_classification.joblib"
-    joblib.dump(model, filename)
+    # # Predicting the Value
+    # y_pred = model.predict(X_test)
+    # print(y_pred)
 
 
-# ClassificationModel()
-
+BaseClassificationModel()
 
 ##################################################################################################
 #************************* Regression Base Model **********************************************#
