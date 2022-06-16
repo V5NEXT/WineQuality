@@ -1,37 +1,13 @@
 from gc import callbacks
-from sklearn.dummy import DummyClassifier
 import pandas as pd
 import numpy as np
 import seaborn as sb
 import tensorflow as tf
 import matplotlib.pyplot as plt
-
-
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline, make_pipeline
-import sklearn.metrics
-from sklearn import metrics
-from sklearn.metrics import accuracy_score
-import joblib
-import pickle
-import os
-
-# Model
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import callbacks
-# from sklearn.metrics import confusion_matrix
-# from sklearn.metrics import classification_report
 
-# from sklearn.svm import SVC
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.ensemble import GradientBoostingClassifier
-# from sklearn.linear_model import SGDClassifier
-
-# from sklearn.preprocessing import MinMaxScaler
 
 data_prep = __import__('01_DataPrep')
 try:

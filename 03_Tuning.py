@@ -14,6 +14,16 @@ from sklearn.preprocessing import StandardScaler
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import callbacks
+from tensorflow.keras.callbacks import EarlyStopping
+from gc import callbacks
+import pandas as pd
+import numpy as np
+import seaborn as sb
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras import callbacks
 
 
 data_prep = __import__('01_DataPrep')
@@ -27,9 +37,20 @@ for attr in attrlist:
 ##################################################################################################
 #************************* Classification Model Tuning **********************************************#
 ##################################################################################################
+# model callbacks
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor="val_loss", patience=0)  # val_loss
+callbacks = [early_stopping]
+
+# Prediction of Wine Type
 
 
 def Changing_Layers_Classification():
+    # Import `Sequential` from `keras.models`
+    from keras.models import Sequential
+
+    # Import `Dense` from `keras.layers`
+    from keras.layers import Dense
     X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
 
     # Initialize the constructor
@@ -38,7 +59,7 @@ def Changing_Layers_Classification():
     # Add an input layer
     model.add(Dense(12, activation='relu', input_shape=(11, )))
 
-    # Add two hidden layer
+    # Add one hidden layer
     model.add(Dense(9, activation='relu'))
 
     model.add(Dense(9, activation='relu'))
@@ -75,7 +96,94 @@ def Changing_Layers_Classification():
     plt.show()
 
 
-Changing_Layers_Classification()
+def ChangingNodes_Classification():
+    # Import `Sequential` from `keras.models`
+    from keras.models import Sequential
+
+    # Import `Dense` from `keras.layers`
+    from keras.layers import Dense
+    X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
+
+    # Initialize the constructor
+    model = Sequential()
+
+    # Add an input layer
+    model.add(Dense(64, activation='relu', input_shape=(11, )))
+
+    # Add one hidden layer
+    model.add(Dense(32, activation='relu'))
+
+    # Add an output layer
+    model.add(Dense(1, activation='sigmoid'))
+
+    # Model output shape
+    model.output_shape
+
+    # Model summary
+    model.summary()
+
+    # Model config
+    model.get_config()
+
+    # List all weight tensors
+    model.get_weights()
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam', metrics=['accuracy'])
+    # Training Model
+    history = model.fit(X_train, y_train, epochs=10, verbose=1, validation_data=(
+        X_val, y_val), callbacks=callbacks, shuffle=True, batch_size=256)
+
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    plt.plot(loss, label='loss')
+    plt.plot(val_loss, label='val_loss')
+    plt.ylim([0, max([max(loss), max(val_loss)])])
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+def FinalMode_Classification():
+    # Import `Sequential` from `keras.models`
+    from keras.models import Sequential
+
+    # Import `Dense` from `keras.layers`
+    from keras.layers import Dense
+    X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
+
+    # Initialize the constructor
+    model = Sequential()
+
+    # Add an input layer
+    model.add(Dense(12, activation='relu', input_shape=(11, )))
+
+    # Add one hidden layer
+    model.add(Dense(9, activation='relu'))
+
+    # Add an output layer
+    model.add(Dense(1, activation='sigmoid'))
+
+    # Model output shape
+    model.output_shape
+
+    # Model summary
+    model.summary()
+
+    # Model config
+    model.get_config()
+
+    # List all weight tensors
+    model.get_weights()
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam', metrics=['accuracy'])
+    # Training Model
+    history = model.fit(X_train, y_train, epochs=10,
+                        batch_size=1, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
+
+
+FinalMode_Classification()
 ##################################################################################################
 #************************* Regression Model Tuning **********************************************#
 ##################################################################################################
