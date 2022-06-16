@@ -32,7 +32,7 @@ callbacks = [early_stopping]
 # Prediction of Wine Type
 
 
-def BaseClassificationModel():
+def BaseClassificationModel(input_shape, layer1, layer2, epochs, batchsize, optimizer):
     # Import `Sequential` from `keras.models`
     from keras.models import Sequential
 
@@ -44,10 +44,10 @@ def BaseClassificationModel():
     model = Sequential()
 
     # Add an input layer
-    model.add(Dense(12, activation='relu', input_shape=(11, )))
+    model.add(Dense(layer1, activation='relu', input_shape=input_shape))
 
     # Add one hidden layer
-    model.add(Dense(9, activation='relu'))
+    model.add(Dense(layer2, activation='relu'))
 
     # Add an output layer
     model.add(Dense(1, activation='sigmoid'))
@@ -64,10 +64,11 @@ def BaseClassificationModel():
     # List all weight tensors
     model.get_weights()
     model.compile(loss='binary_crossentropy',
-                  optimizer='adam', metrics=['accuracy'])
+                  optimizer=optimizer, metrics=['accuracy'])
     # Training Model
-    history = model.fit(X_train, y_train, epochs=10,
-                        batch_size=1, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
+    history = model.fit(X_train, y_train, epochs=epochs,
+                        batch_size=batchsize, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
+    history_frame = pd.DataFrame(history.history)
 
     loss = history.history['loss']
     val_loss = history.history['val_loss']
@@ -79,6 +80,11 @@ def BaseClassificationModel():
     plt.legend()
     plt.grid(True)
     plt.show()
+
+    print("Minimum Validation Loss: {:0.4f}".format(
+        history_frame['val_loss'].min()))
+
+    return model
 
 
 ##################################################################################################
@@ -135,4 +141,4 @@ def BaseModelRegression():
 
 
 # BaseClassificationModel()
-BaseModelRegression()
+# BaseModelRegression()
