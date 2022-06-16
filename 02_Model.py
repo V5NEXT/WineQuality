@@ -92,11 +92,11 @@ def BaseClassificationModel(input_shape, layer1, layer2, epochs, batchsize, opti
 ##################################################################################################
 EPOCHS = 300
 BATCH_SIZE = 2 ** 8  # 256
-X_train, X_valid, y_train, y_valid = data_prep.regressionPreprocess()
-input_shape = [X_train.shape[1]]
 
 
 def BaseModelRegression():
+    X_train, X_valid, y_train, y_valid = data_prep.regressionPreprocess()
+    input_shape = [X_train.shape[1]]
 
     # Training Configuration
 
