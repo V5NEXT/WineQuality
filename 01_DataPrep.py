@@ -2,7 +2,6 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.cluster import KMeans
 from operator import ge
 import os
-import glob
 import pandas as pd
 import numpy as np
 import seaborn as sb
@@ -282,41 +281,6 @@ def regressionPreprocess():
 ########################################################################################
 
 
-# def split_dataset():
-#     train, test = basic_preprocessing()
-
-#     # set aside 20% of train and test data for evaluation
-#     X_train, X_test, y_train, y_test = train_test_split(train, test,
-#                                                         test_size=0.2, shuffle=True, random_state=8)
-#     # Use the same function above for the validation set
-#     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
-#                                                       test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
-
-#     print("X_train shape: {}".format(X_train.shape))
-#     print("X_test shape: {}".format(X_test.shape))
-#     print("y_train shape: {}".format(X_val.shape))
-#     print("y_test shape: {}".format(y_test.shape))
-#     print("X_val shape: {}".format(y_train.shape))
-#     print("y val shape: {}".format(y_val.shape))
-
-#     print("##################### Length #####################")
-#     print(f'Total # of sample in whole dataset: {len(X_train)+len(X_test)}')
-#     print(f'Total # of sample in train dataset: {len(X_train)}')
-#     print(f'Total # of sample in test dataset: {len(X_test)}')
-
-#     print("##################### Shape #####################")
-#     print(f'Shape of train dataset: {X_train.shape}')
-#     print(f'Shape of test dataset: {X_test.shape}')
-
-#     print("##################### Percantage #####################")
-#     print(
-#         f'Percentage of train dataset: {round((len(X_train)/(len(X_train)+len(X_test)))*100,2)}%')
-#     print(
-#         f'Percentage of validation dataset: {round((len(X_test)/(len(X_train)+len(X_test)))*100,2)}%')
-
-#     return X_train, X_val, X_test, y_train, y_val, y_test
-
-
 def split_dataset_classification():
     combined_df = get_combined_dataset()
 
@@ -332,9 +296,9 @@ def split_dataset_classification():
                                                       test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
 
     return X_train, X_test, y_train, y_test, X_val, y_val
+
+
 # split_dataset()
 
-
 # split_dataset_classification()
-
-evaluating_dataset()
+regressionPreprocess()
