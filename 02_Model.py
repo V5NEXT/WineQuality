@@ -17,24 +17,10 @@ except AttributeError:
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
 
-X_train, X_val, X_test, y_train, y_val, y_test = data_prep.split_dataset()
 
-
-def plotValLossAndLoss(history):
-    loss = history.history['loss']
-    val_loss = history.history['val_loss']
-    plt.plot(loss, label='loss')
-    plt.plot(val_loss, label='val_loss')
-    plt.ylim([0, max([max(loss), max(val_loss)])])
-    plt.xlabel('Epoch')
-    plt.ylabel('Error')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
 ##################################################################################################
 #************************* Classification Base Model  **********************************************#
 ##################################################################################################
-
 
 # model callbacks
 early_stopping = tf.keras.callbacks.EarlyStopping(
@@ -83,12 +69,17 @@ def BaseClassificationModel():
     history = model.fit(X_train, y_train, epochs=10,
                         batch_size=1, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
 
-    # # Predicting the Value
-    # y_pred = model.predict(X_test)
-    # print(y_pred)
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    plt.plot(loss, label='loss')
+    plt.plot(val_loss, label='val_loss')
+    plt.ylim([0, max([max(loss), max(val_loss)])])
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
-
-BaseClassificationModel()
 
 ##################################################################################################
 #************************* Regression Base Model **********************************************#
@@ -99,7 +90,7 @@ X_train, X_valid, y_train, y_valid = data_prep.regressionPreprocess()
 input_shape = [X_train.shape[1]]
 
 
-def BaseModel():
+def BaseModelRegression():
 
     # Training Configuration
 
@@ -120,17 +111,28 @@ def BaseModel():
         X_train, y_train,
         validation_data=(X_valid, y_valid),
         batch_size=BATCH_SIZE,
-        epochs=EPOCHS,
-        verbose=0,  # suppress output since we'll plot the curves
+        epochs=EPOCHS
     )
 
     # Convert the training history to a dataframe
     history_frame = pd.DataFrame(history.history)
 
     # Plot training history
-    history_frame.loc[0:, ['loss', 'val_loss']].plot()
-
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    plt.plot(loss, label='loss')
+    plt.plot(val_loss, label='val_loss')
+    plt.ylim([0, max([max(loss), max(val_loss)])])
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
     print("Minimum Validation Loss: {:0.4f}".format(
         history_frame['val_loss'].min()))
     print("Minimum Validation MAE (mean absolute error): {:0.4f}".format(
         history_frame['val_mae'].min()))
+
+
+# BaseClassificationModel()
+BaseModelRegression()
