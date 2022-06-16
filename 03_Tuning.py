@@ -182,6 +182,17 @@ def FinalMode_Classification():
     history = model.fit(X_train, y_train, epochs=10,
                         batch_size=1, verbose=1, validation_data=(X_val, y_val), callbacks=callbacks, shuffle=True)
 
+    # serialize model to JSON
+    model_json = model.to_json()
+    with open("classification_model.json", "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights("classification_model.h5")
+    print("Saved model to disk")
+    # # Predicting the Value
+    y_pred = model.predict(X_test)
+    print(y_pred)
+
 
 FinalMode_Classification()
 ##################################################################################################

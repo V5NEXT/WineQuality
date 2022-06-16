@@ -41,7 +41,7 @@ loaded_model.load_weights("regression_model.h5")
 print("Loaded model from disk")
 
 
-def Shap_processing():
+def Shap_processing_Regression():
     # Place data into DataFrame for readability
     X_test_frame = pd.DataFrame(X_test)
     X_test_frame.columns = ['fixed acidity', 'volatile acidity', 'citric acid',
@@ -118,4 +118,4 @@ def Shap_processing():
                     X_test_frame[X_test_frame['white'] == 1].iloc[INSTANCE_NUM, :-2])
 
 
-Shap_processing()
+Shap_processing_Regression()

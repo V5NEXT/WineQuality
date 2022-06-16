@@ -1,6 +1,6 @@
 # AMLS_SS22
 
-Group members: Johannes Honeder, Samir Kumar
+Vishnu Viswambharan
 
 ## Data Preparation
 

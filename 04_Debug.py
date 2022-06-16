@@ -1,7 +1,6 @@
 # Cross Validation Classification Accuracy
 import pandas
 from sklearn import model_selection
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 import numpy as np
@@ -26,36 +25,52 @@ for attr in attrlist:
 # ************************* Classification Model Evaluation ***************************************
 ##################################################################################################
 
+    # # Making predictions from test set
+
+X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
+
+
+# load json and create model
+json_file = open('classification_model.json', 'r')
+loaded_classifcation_model_json = json_file.read()
+json_file.close()
+loaded_classifcation_model = model_from_json(loaded_classifcation_model_json)
+# load weights into new model
+loaded_classifcation_model.load_weights("classification_model.h5")
+predictions = loaded_classifcation_model.predict(X_test)
+
+print("Loaded model from disk")
+
 
 def ClassificationAccuracy():
     scoring = 'accuracy'
     results = model_selection.cross_val_score(
-        model, X, Y, cv=kfold, scoring=scoring)
+        loaded_classifcation_model, y_test, predictions, scoring=scoring)
     print("Accuracy: %.3f (%.3f)" % (results.mean(), results.std()))
 
 
 def LogLoss():
     scoring = 'neg_log_loss'
     results = model_selection.cross_val_score(
-        model, X, Y, cv=kfold, scoring=scoring)
+        loaded_classifcation_model, y_test, predictions, scoring=scoring)
     print("Logloss: %.3f (%.3f)" % (results.mean(), results.std()))
 
 
 def ROCAUC():
     scoring = 'roc_auc'
     results = model_selection.cross_val_score(
-        model, X, Y, cv=kfold, scoring=scoring)
+        loaded_classifcation_model, y_test, predictions, scoring=scoring)
     print("AUC: %.3f (%.3f)" % (results.mean(), results.std()))
 
 
 def ConfusionMatrix():
-    predicted = model.predict(X_test)
+    predicted = loaded_classifcation_model.predict(X_test)
     matrix = confusion_matrix(y_test, predicted)
     print(matrix)
 
 
 def ClassificationReport():
-    predicted = model.predict(X_test)
+    predicted = loaded_classifcation_model.predict(X_test)
     report = classification_report(y_test, predicted)
     print(report)
 
@@ -63,7 +78,7 @@ def ClassificationReport():
 def Precission_Accuracy():
 
     # calculate precision and recall
-    precision, recall, thresholds = precision_recall_curve(y_test, y_score)
+    precision, recall, thresholds = precision_recall_curve(y_test, predictions)
 
     # create precision recall curve
     fig, ax = plt.subplots()
@@ -76,12 +91,22 @@ def Precission_Accuracy():
 
     # display plot
     plt.show()
-    ##################################################################################################
-    # ************************* Regression Model Evaluation ***************************************
-    ##################################################################################################
 
 
-    # # Making predictions from test set
+def Evaluate_Classification_Model():
+    ClassificationAccuracy()
+    LogLoss()
+    ROCAUC()
+    ConfusionMatrix()
+    ClassificationReport()
+    Precission_Accuracy()
+
+
+Evaluate_Classification_Model()
+##################################################################################################
+# ************************* Regression Model Evaluation ***************************************
+##################################################################################################
+# # Making predictions from test set
 combined_dataset = data_prep.get_combined_dataset()
 ds_train, ds_valid, ds_test = data_prep.split_data_regression(
     combined_dataset)
@@ -119,4 +144,4 @@ def R2Matrics():
     print("Final Regression model score (R2):", model_score)
 
 
-R2Matrics()
+# R2Matrics()

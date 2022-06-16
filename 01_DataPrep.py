@@ -1,3 +1,5 @@
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.cluster import KMeans
 from operator import ge
 import os
 import glob
@@ -11,6 +13,14 @@ from sklearn.compose import make_column_transformer
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import MinMaxScaler
 import seaborn as sns
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import missingno as msno
+import warnings
+warnings.filterwarnings('ignore')
 
 
 os.chdir("Data_Set&Saved _Models")
@@ -29,28 +39,139 @@ def get_combined_dataset():
     return combined_df
 
 
+# Exploring the DataSet
+
 def evaluating_dataset():
     combined_df = get_combined_dataset()
     print(combined_df.info())
     print(combined_df.describe())
+    combined_df.isnull().sum()
+    from scipy import stats
+    z = np.abs(stats.zscore(combined_df))
+    print(z)
+    msno.bar(combined_df, figsize=(15, 7), color='pink')
+
     combined_df.hist(bins=25, figsize=(10, 10))
     # display histogram
-    plt.show()
-
-    plt.figure(figsize=[10, 6])
-    # plot bar graph
-    plt.bar(combined_df['quality'], combined_df['alcohol'], color='red')
-    # label x-axis
-    plt.xlabel('quality')
-    # label y-axis
-    plt.ylabel('alcohol')
-
     plt.show()
 
     # ploting heatmap (for correlation)
     plt.figure(figsize=[19, 10], facecolor='blue')
     sb.heatmap(combined_df.corr(), annot=True)
     plt.show()
+
+    # distribution of wine type
+
+    fig = px.pie(values=combined_df['wine_type'].value_counts(),
+                 names=combined_df['wine_type'].value_counts().index,
+                 )
+    fig.update_traces(hole=.6, hoverinfo="label+percent", marker=dict(
+        colors=['snow', 'tomato'], line=dict(color=['black'], width=1)))
+    fig.add_annotation(x=0.50, y=0.5, text='Wine Types',
+                       showarrow=False, font=dict(size=20, color='Steelblue'))
+    fig.add_annotation(x=0.27, y=0.8, text='Red Wine',
+                       showarrow=False, font=dict(size=15, color='tomato'))
+    fig.add_annotation(x=0.75, y=0.6, text='White Wine',
+                       showarrow=False, font=dict(size=15, color='gold'))
+
+    fig.update_layout(margin={'b': 0, 'l': 0, 'r': 0, 't': 100},
+                      paper_bgcolor='rgb(248, 248, 255)',
+                      plot_bgcolor='rgb(248, 248, 255)',
+                      showlegend=False,
+                      title={'font': {
+                          'family': 'monospace',
+                          'size': 22,
+                          'color': 'grey'},
+        'text': 'Distribution Of Red & White Wine',
+                'x': 0.50, 'y': 1})
+    fig.show()
+
+    # Quality Distribution in Red and White wine
+
+    white = combined_df[combined_df['wine_type'] == 0]
+    red = combined_df[combined_df['wine_type'] == 1]
+
+    fig = make_subplots(rows=1, cols=2,
+                        column_widths=[0.35, 0.35],
+                        subplot_titles=['White Wine Quality', 'Red Wine Quality'])
+
+    fig.append_trace(go.Bar(x=white['quality'].value_counts().index,
+                            y=white['quality'].value_counts(),
+                            text=white['quality'].value_counts(),
+                            marker=dict(
+                            color='snow',
+                            line=dict(color='black', width=1)
+                            ),
+                            name=''
+                            ), 1, 1
+                     )
+
+    fig.append_trace(go.Bar(x=red['quality'].value_counts().index,
+                            y=red['quality'].value_counts(),
+                            text=red['quality'].value_counts(),
+                            marker=dict(
+                            color='coral',
+                            line=dict(color='red', width=1)
+                            ),
+                            name=''
+                            ), 1, 2
+                     )
+
+    fig.update_traces(textposition='outside')
+
+    fig.update_layout(margin={'b': 0, 'l': 0, 'r': 0, 't': 100},
+                      paper_bgcolor='rgb(248, 248, 255)',
+                      plot_bgcolor='rgb(248, 248, 255)',
+                      showlegend=False,
+                      title={'font': {
+                          'family': 'monospace',
+                          'size': 22,
+                          'color': 'grey'},
+        'text': 'Quality Distribution In Red & White Wine',
+                'x': 0.50, 'y': 1})
+
+    fig.show()
+
+    # Checking for skwness in the data
+
+    plt.figure(figsize=(20, 14))
+    for i, col in enumerate(list(combined_df.iloc[:, 1:].columns.values)):
+        plt.subplot(4, 3, i+1)
+        sns.distplot(combined_df[col], color='r', kde=True, label='data')
+        plt.grid()
+        plt.legend(loc='upper right')
+        plt.tight_layout()
+
+    df1 = combined_df.iloc[:, 1:]
+    plot_rows = 4
+    plot_cols = 3
+    fig = make_subplots(rows=plot_rows, cols=plot_cols)
+
+    x = 0
+    for i in range(1, plot_rows + 1):
+        for j in range(1, plot_cols + 1):
+
+            fig.add_trace(go.Box(y=df1[df1.columns[x]].values,
+                                 name=df1.columns[x],
+                                 ),
+                          row=i,
+                          col=j)
+
+            x = x+1
+
+    fig.update_layout(height=1200, width=1200)
+
+    fig.update_layout(margin={'b': 0, 'l': 0, 'r': 0, 't': 100},
+                      paper_bgcolor='rgb(248, 248, 255)',
+                      plot_bgcolor='rgb(248, 248, 255)',
+                      showlegend=False,
+                      title={'font': {
+                          'family': 'monospace',
+                          'size': 22,
+                          'color': 'grey'},
+        'text': 'Checking Skewness',
+                'x': 0.50, 'y': 1})
+    fig.show()
 
 
 def basic_preprocessing():
@@ -161,39 +282,39 @@ def regressionPreprocess():
 ########################################################################################
 
 
-def split_dataset():
-    train, test = basic_preprocessing()
+# def split_dataset():
+#     train, test = basic_preprocessing()
 
-    # set aside 20% of train and test data for evaluation
-    X_train, X_test, y_train, y_test = train_test_split(train, test,
-                                                        test_size=0.2, shuffle=True, random_state=8)
-    # Use the same function above for the validation set
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
-                                                      test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
+#     # set aside 20% of train and test data for evaluation
+#     X_train, X_test, y_train, y_test = train_test_split(train, test,
+#                                                         test_size=0.2, shuffle=True, random_state=8)
+#     # Use the same function above for the validation set
+#     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
+#                                                       test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
 
-    print("X_train shape: {}".format(X_train.shape))
-    print("X_test shape: {}".format(X_test.shape))
-    print("y_train shape: {}".format(X_val.shape))
-    print("y_test shape: {}".format(y_test.shape))
-    print("X_val shape: {}".format(y_train.shape))
-    print("y val shape: {}".format(y_val.shape))
+#     print("X_train shape: {}".format(X_train.shape))
+#     print("X_test shape: {}".format(X_test.shape))
+#     print("y_train shape: {}".format(X_val.shape))
+#     print("y_test shape: {}".format(y_test.shape))
+#     print("X_val shape: {}".format(y_train.shape))
+#     print("y val shape: {}".format(y_val.shape))
 
-    print("##################### Length #####################")
-    print(f'Total # of sample in whole dataset: {len(X_train)+len(X_test)}')
-    print(f'Total # of sample in train dataset: {len(X_train)}')
-    print(f'Total # of sample in test dataset: {len(X_test)}')
+#     print("##################### Length #####################")
+#     print(f'Total # of sample in whole dataset: {len(X_train)+len(X_test)}')
+#     print(f'Total # of sample in train dataset: {len(X_train)}')
+#     print(f'Total # of sample in test dataset: {len(X_test)}')
 
-    print("##################### Shape #####################")
-    print(f'Shape of train dataset: {X_train.shape}')
-    print(f'Shape of test dataset: {X_test.shape}')
+#     print("##################### Shape #####################")
+#     print(f'Shape of train dataset: {X_train.shape}')
+#     print(f'Shape of test dataset: {X_test.shape}')
 
-    print("##################### Percantage #####################")
-    print(
-        f'Percentage of train dataset: {round((len(X_train)/(len(X_train)+len(X_test)))*100,2)}%')
-    print(
-        f'Percentage of validation dataset: {round((len(X_test)/(len(X_train)+len(X_test)))*100,2)}%')
+#     print("##################### Percantage #####################")
+#     print(
+#         f'Percentage of train dataset: {round((len(X_train)/(len(X_train)+len(X_test)))*100,2)}%')
+#     print(
+#         f'Percentage of validation dataset: {round((len(X_test)/(len(X_train)+len(X_test)))*100,2)}%')
 
-    return X_train, X_val, X_test, y_train, y_val, y_test
+#     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 def split_dataset_classification():
@@ -215,3 +336,5 @@ def split_dataset_classification():
 
 
 # split_dataset_classification()
+
+evaluating_dataset()
