@@ -41,16 +41,6 @@ for attr in attrlist:
 X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
 
 
-# load json and create model
-json_file = open('classification_model.json', 'r')
-loaded_classifcation_model_json = json_file.read()
-json_file.close()
-loaded_classifcation_model = model_from_json(loaded_classifcation_model_json)
-# load weights into new model
-loaded_classifcation_model.load_weights("classification_model.h5")
-print("Loaded model from disk")
-
-
 def Accuracy(model):
     predictions = model.predict(X_test)
 
@@ -67,14 +57,14 @@ def ConfusionMatrix(model):
 
     matrix = metrics.confusion_matrix(y_test, predictions.round(
     ), labels=None, sample_weight=None, normalize=None)
-    print(matrix)
+    print("Confusion Matrix", matrix)
 
 
 def ClassificationReport(model):
     predictions = model.predict(X_test)
 
     report = classification_report(y_test, predictions.round())
-    print(report)
+    print("Classification Report", report)
 
 
 def Precission_Accuracy(model):
@@ -154,6 +144,7 @@ def MaxResidualError(model):
 
 
 def Evaluate_Regression_Model():
+
     regression_model = Tuning.Regression_Tuning()
     print("The Final Regression Model Results : ")
     R2Matrics(regression_model)
@@ -172,4 +163,4 @@ def Evaluate_Classification_Model():
     Precission_Accuracy(classification_model)
 
 
-# Evaluate_Regression_Model()
+Evaluate_Regression_Model()

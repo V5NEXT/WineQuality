@@ -90,11 +90,12 @@ def BaseClassificationModel(input_shape, layer1, layer2, epochs, batchsize, opti
 ##################################################################################################
 #************************* Regression Base Model **********************************************#
 ##################################################################################################
-EPOCHS = 300
-BATCH_SIZE = 2 ** 8  # 256
 
 
 def BaseModelRegression():
+    EPOCHS = 300
+    BATCH_SIZE = 2 ** 8  # 256
+
     X_train, X_valid, y_train, y_valid = data_prep.regressionPreprocess()
     input_shape = [X_train.shape[1]]
 
@@ -138,7 +139,3 @@ def BaseModelRegression():
         history_frame['val_loss'].min()))
     print("Minimum Validation MAE (mean absolute error): {:0.4f}".format(
         history_frame['val_mae'].min()))
-
-
-# BaseClassificationModel()
-# BaseModelRegression()

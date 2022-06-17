@@ -1,15 +1,9 @@
-from ast import Add
 from gc import callbacks
 from pyexpat import model
-from sklearn.dummy import DummyClassifier
 import pandas as pd
-import numpy as np
-import seaborn as sb
-import tensorflow as tf
+
 import matplotlib.pyplot as plt
-from keras.models import Sequential
-from keras.layers import Dense
-from sklearn.preprocessing import StandardScaler
+
 
 # Model
 from tensorflow import keras
@@ -25,6 +19,7 @@ import matplotlib.pyplot as plt
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import callbacks
+from tensorflow.keras.callbacks import ReduceLROnPlateau
 
 
 data_prep = __import__('01_DataPrep')
@@ -157,22 +152,9 @@ def FinalModel_Classification():
     epochs = 10
     batch_size = 1
     optimizer = 'adam'
-    X_train, X_test, y_train, y_test, X_val, y_val = data_prep.split_dataset_classification()
 
     history_frame, model = data_model.BaseClassificationModel(
         input_shape, layer1, layer2, epochs, batch_size, optimizer)
-
-    # # serialize model to JSON
-    # model_json = model.to_json()
-    # with open("classification_model.json", "w") as json_file:
-    #     json_file.write(model_json)
-    # # serialize weights to HDF5
-    # model.save_weights("classification_model.h5")
-    # print("Saved model to disk")
-
-    # # # Predicting the Value
-    # y_pred = model.predict(X_test)
-    # print(y_pred)
 
     return history_frame['val_loss'].min(), model
 
@@ -182,13 +164,13 @@ def FinalModel_Classification():
 ##################################################################################################
 
 
-EPOCHS = 300
-BATCH_SIZE = 2 ** 8  # 256
 X_train, X_valid, y_train, y_valid = data_prep.regressionPreprocess()
 input_shape = [X_train.shape[1]]
 
 
 def Two_Represntation_Layers():
+    EPOCHS = 300
+    BATCH_SIZE = 2 ** 8  # 256
     # Define model with two representation layers
     model = keras.Sequential([
         layers.Dense(2 ** 4, activation='relu', input_shape=input_shape),
@@ -209,7 +191,6 @@ def Two_Represntation_Layers():
         validation_data=(X_valid, y_valid),
         batch_size=BATCH_SIZE,
         epochs=EPOCHS,
-        verbose=0,  # suppress output since we'll plot the curves
     )
 
     # Convert the training history to a dataframe
@@ -228,6 +209,8 @@ def Two_Represntation_Layers():
 
 
 def One_Representaion_Layer():
+    EPOCHS = 300
+    BATCH_SIZE = 2 ** 8  # 256
     # Define model with one representation layer
     model = keras.Sequential([
         layers.Dense(2 ** 4, activation='relu', input_shape=input_shape),
@@ -246,8 +229,7 @@ def One_Representaion_Layer():
         X_train, y_train,
         validation_data=(X_valid, y_valid),
         batch_size=BATCH_SIZE,
-        epochs=EPOCHS,
-        verbose=0,  # suppress output since we'll plot the curves
+        epochs=EPOCHS
     )
 
     # Convert the training history to a dataframe
@@ -266,6 +248,8 @@ def One_Representaion_Layer():
 
 
 def Three_Represntaion_Layer():
+    EPOCHS = 300
+    BATCH_SIZE = 2 ** 8  # 256
     # Define model with three representation layers
     model = keras.Sequential([
         layers.Dense(2 ** 4, activation='relu', input_shape=input_shape),
@@ -287,7 +271,6 @@ def Three_Represntaion_Layer():
         validation_data=(X_valid, y_valid),
         batch_size=BATCH_SIZE,
         epochs=EPOCHS,
-        verbose=0,  # suppress output since we'll plot the curves
     )
 
     # Convert the training history to a dataframe
@@ -308,6 +291,8 @@ def Three_Represntaion_Layer():
 
 
 def OptimizedModel():
+    EPOCHS = 300
+    BATCH_SIZE = 2 ** 8  # 256
     # Define new model (use previous baseline model as comparison)
     model = keras.Sequential([
         layers.Dense(2 ** 10, activation='relu', input_shape=input_shape),
@@ -331,7 +316,6 @@ def OptimizedModel():
         validation_data=(X_valid, y_valid),
         batch_size=BATCH_SIZE,
         epochs=EPOCHS,
-        verbose=0,  # suppress output since we'll plot the curves
     )
 
     # Convert the training history to a dataframe
@@ -351,18 +335,18 @@ def OptimizedModel():
 def Model_with_Callbacks():
     # (Updated) Training Configuration
     EPOCHS = 3000
-
+    BATCH_SIZE = 2 ** 8  # 256
     # Defining callbacks
     early_stopping = EarlyStopping(
         patience=50,  # how many epochs to wait before stopping
         min_delta=0.001,  # minimium amount of change to count as an improvement
         restore_best_weights=True,
     )
-    lr_schedule = callbacks.ReduceLROnPlateau(
-        patience=0,
-        factor=0.2,
-        min_lr=0.001,
-    )
+    # lr_schedule = ReduceLROnPlateau(
+    #     patience=0,
+    #     factor=0.2,
+    #     min_lr=0.001,
+    # )
     # Define model
     # Add callbacks
     model = keras.Sequential([
@@ -386,8 +370,8 @@ def Model_with_Callbacks():
         X_train, y_train,
         validation_data=(X_valid, y_valid),
         batch_size=BATCH_SIZE,
+        callbacks=[early_stopping],
         epochs=EPOCHS,
-        verbose=0,  # suppress output since we'll plot the curves
     )
 
     # Convert the training history to a dataframe
@@ -407,14 +391,14 @@ def Model_with_Callbacks():
 def AddingDropOut():
     # (Updated) Training Configuration
     EPOCHS = 3000
-
+    BATCH_SIZE = 2 ** 8  # 256
     # Defining callbacks
     early_stopping = EarlyStopping(
         patience=50,  # how many epochs to wait before stopping
         min_delta=0.001,  # minimium amount of change to count as an improvement
         restore_best_weights=True,
     )
-    lr_schedule = callbacks.ReduceLROnPlateau(
+    lr_schedule = ReduceLROnPlateau(
         patience=0,
         factor=0.2,
         min_lr=0.001,
@@ -450,7 +434,6 @@ def AddingDropOut():
         batch_size=BATCH_SIZE,
         epochs=EPOCHS,
         callbacks=[early_stopping, lr_schedule],
-        verbose=0,  # suppress output since we'll plot the curves
     )
 
     # Convert the training history to a dataframe
@@ -471,14 +454,14 @@ def Batch_Normalization():
 
     # (Updated) Training Configuration
     EPOCHS = 3000
-
+    BATCH_SIZE = 2 ** 8  # 256
     # Defining callbacks
     early_stopping = EarlyStopping(
         patience=50,  # how many epochs to wait before stopping
         min_delta=0.001,  # minimium amount of change to count as an improvement
         restore_best_weights=True,
     )
-    lr_schedule = callbacks.ReduceLROnPlateau(
+    lr_schedule = ReduceLROnPlateau(
         patience=0,
         factor=0.2,
         min_lr=0.001,
@@ -519,7 +502,6 @@ def Batch_Normalization():
         batch_size=BATCH_SIZE,
         epochs=EPOCHS,
         callbacks=[early_stopping, lr_schedule],
-        verbose=1,  # suppress output since we'll plot the curves
     )
 
     # Convert the training history to a dataframe
@@ -535,8 +517,6 @@ def Batch_Normalization():
         history_frame['val_mae'].min()))
     return history_frame['val_loss'].min(), model
 
-
-# Batch_Normalization()
 
 def FinalModelRegression():
     # Combine training set and validation set to train final model
@@ -589,7 +569,6 @@ def FinalModelRegression():
         X_train, y_train,
         batch_size=BATCH_SIZE,
         epochs=200,
-        verbose=0,
     )
 
     # serialize model to JSON
@@ -603,9 +582,7 @@ def FinalModelRegression():
     history_frame = pd.DataFrame(history.history)
 
     # Plot training history
-    history_frame.loc[0:, ['loss', 'val_loss']].plot()
-    history_frame.loc[0:, ['mae', 'val_mae']].plot()
-    return history_frame['val_loss'].min(), model
+    return history_frame['loss'].min(), model
 
 
 def Classification_Tuning():
@@ -617,6 +594,8 @@ def Classification_Tuning():
     val_loss_optimizers, model_change_optimizer = ChangingOptimizer_Classification()
     val_loss_final, final_model = FinalModel_Classification()
 
+    print(val_loss_layer, val_loss_nodes, val_loss_batch,
+          val_loss_optimizers, val_loss_final)
     if(val_loss_layer < val_loss_nodes) and (val_loss_layer < val_loss_batch) and (val_loss_layer < val_loss_optimizers) and (val_loss_layer < val_loss_final):
         Final_Model = model_change_layer
     elif(val_loss_nodes < val_loss_layer) and (val_loss_nodes < val_loss_batch) and (val_loss_nodes < val_loss_optimizers) and (val_loss_nodes < val_loss_final):
@@ -631,11 +610,19 @@ def Classification_Tuning():
 
 
 def Regression_Tuning():
-    Two_Represntation_Layers()
-    One_Representaion_Layer()
-    Three_Represntaion_Layer()
-    OptimizedModel()
-    Model_with_Callbacks()
-    AddingDropOut()
-    Batch_Normalization()
-    FinalModelRegression()
+    print("Regression Tuning")
+    val_loss_two_rep, model_change_layer = Two_Represntation_Layers()
+    val_loss_one_rep, model_change_nodes = One_Representaion_Layer()
+    val_loss_three_rep, model_change_batch = Three_Represntaion_Layer()
+    # # val_loss_optimizers, model_change_optimizer = OptimizedModel()
+    # # val_loss_callbacks, model_with_callbacks = Model_with_Callbacks()
+    # val_loss_dropout, model_with_dropout = AddingDropOut()
+    val_loss_batchnormalization, model_with_batch = Batch_Normalization()
+    val_loss_finalregression, model_with_finalregression = FinalModelRegression()
+
+    val_loss = [val_loss_one_rep, val_loss_two_rep, val_loss_three_rep,
+                val_loss_batchnormalization, val_loss_finalregression]
+
+    print(val_loss)
+
+    return model_with_finalregression

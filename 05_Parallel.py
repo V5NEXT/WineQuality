@@ -5,6 +5,7 @@ import shap
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
+import time
 
 
 # Matplotlib defaults
@@ -123,20 +124,13 @@ def Shap_processing_Regression():
                     X_test_frame[X_test_frame['white'] == 1].iloc[INSTANCE_NUM, :-2])
 
 
-# Shap_processing_Regression()
-
-
 def EDA():
     data_prep.evaluating_dataset()
 
 
 def Sequential():
     debug.Evaluate_Classification_Model()  # 38seconds
-    # debug.Evaluate_Regression_Model()
-
-
-if __name__ == '__main__':
-    globals()[sys.argv[1]]()
+    debug.Evaluate_Regression_Model()
 
 
 Sequential()

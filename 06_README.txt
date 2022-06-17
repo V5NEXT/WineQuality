@@ -1,46 +1,100 @@
 # AMLS_SS22
 
-Vishnu Viswambharan
+Vishnu Viswambharan (Had to do project alone as I couldnt find any partners to start with)
 
-## Data Preparation
+## 01_DataPrep
 
-To explore and prepare the dataset, the first step was to check if the data is clean and complete. Since there were no missing values present, we did not need to impute any missing values. 
-We checked out the nature of the features by making different plots, including distribution plots, scatterplots and boxplots for every feature (see AMLS_SS22/plots/data_exploration). 
-Next, we plotted a correlation heatmap to get the relations between the different features, and also the relation to the target features (wine type, quality). 
-We also computed summary statistics for every feature, including mean, median, min/max values. Since the dataset looked to be very clean, we did not do any data cleaning at all.
+To explore and prepare the dataset, the first step was to check if the data is clean and complete. Since there were no missing values present, I did not need to impute any missing values. 
+Then checked out the nature of the features by making different plots, including skwness measure for each feature (see Project/plots/01_DataPrep). 
+Next, I plotted a correlation heatmap to get the relations between the different features, and also the relation to the target features (wine type, quality). 
+I also computed summary statistics for every feature, including mean, median, min/max values. Since the dataset looked to be very clean, I did some basic preprocessing only
 
-The last part in our exploration was to check the balance between the different output classes. The first thing to mention here is that the ratio of instances of red wine and white wine are not very balanced. Also, the quality classes are not balanced at all (for example, there are no instances of red wine with quality 9). We handled this in later stages (see Tuning). 
+The last part in my exploration was to check the balance between the different output classes. The first thing to mention here is that the ratio of instances of red wine and white wine are not very balanced. Also, the quality classes are not balanced.
+The categotical specific plots where also measured to see the difference and is saved in (Project/plots/01_DataPrep)
 
-We also transformed the data to a lower dimensional space (with TSNE), but the generated plots were not really useful (see AMLS_SS22/plots/data_exploration/tsne*)
-
-
-## Modelling
-
-We defined two models, a classifier for the wine type prediction as well as a regressor for the wine quality prediction.
-For the classifier, we went with a simiple DecisionTreeClassifier, which gave very good results without tuning any parameters or tuning the data, that's why we didn't consider any further hyperparameter tuning for this subtask. The final results (including accuracy, AUC, confusion matrix and classification report) can be found in AMLS_SS22/evaluation/classification_simple_evaluation.png.
-
-For the regressor, we tried out different models, including RandomForest, LassoRegressor and LinearRegressor (see AMLS_SS22/plots/evaluation/regression_simple_comparison.png). We also tried to find the best model with the AutoSklearn library. Since the RandomForestRegressor performed best (also considering the complexity of the resulting model), we implemented a Grid search to fine-tune several parameters (including number of trees, the number of features to consider for the best split and whether to use bootstrap sampling for building the trees). The final model parameters for the RandomForestRegressor can be found in AMLS_SS22/grid_search_evaluation.png.
+I further divided the dataset into train and test set. Then further divided the tain set into validation set.
 
 
-## Tuning
 
-In the Tuning step, we tried different data transformations to boost the performance of our model. We considered dropping highly-correlated featuers and binning several features (including "handcrafted" binning functions and also general binning with qcut).
+## 02_Model
 
-Another step for solving the balance issue with the data, we generated new data from the given data via SMOTE (Synthetic Minority Oversampling Technique). Other data augmentation techniques (e.g. VAE) were not feasible due to the lack of data samples. We both tried out to balance the red and white wine samples as well as the different quality classes. In the end, we only balanced the quality data classes, since balancing red and white wine samples did not improve our score. In the end, the dataset was still not perfectly balanced, but the performance on the minority classes (quality 3, 8, 9...) improved significantly (see Model Debugging). 
-In the end, the best performance was reached when binning 'residual sugar' and 'chloride' with the handcrafted binning functions (to see all results from our data tuning evaluation, have a look at AMLS_SS22/plots/tuning_evaluation).
+There are defined two models used, a classifier for the wine type prediction and a regressor for the wine quality prediction.
+For both regression and classification I used neural networks( there where many tutorials for using a predefined models but opted for neural networks for exploring the capabilites)
 
-## Model Debugging
+Classfication Model: I constructed a base model with 1 Hidden Layer and a input and output layer with activation as relu and sigmoid for the output.
+I passed all the params required for tuning in a sequential pipeline (except for additional Layers)
 
-In this section, we had a closer look at the obtained results and how the model performed on different quality classes. For example, we compared how the model performs to predict different quality types, once for the normal data and once for the balanced data. We found that balancing the dataset gave much better results at the underrepresented classes, even though the error increased a little for the majority classes (see AMLS_SS22/plots/evaluation/normal_balanced_evaluation.png). 
+Regression Model : Regression Base model I started with linear model with a single layer and calculated the Val_MSE for getting an idea to which direction to tune.
 
-We also provided explanations for the model with the SHAP library. We generated plots to explain the impact of different features on the Classifier and the Regressor. We also generated plots to explain the prediction of single data samples (see AMLS_SS22/plots/explanation). 
+
+## 03_Tuning
+
+In the Tuning step, I tried different data transformations to boost the performance of the model. 
+
+#Classfication : I changed hyperparameters EPOCHS, Layers, Optimizers and number of nodes and measured the validation loss among them to determine
+them. In the 03_Tuning.py you can see 5 relavant model architectures build with Final_Model providing the best result. Below are the validation losses for the models.
+(In the code, the plot is commented out so as to measure the pipeline, Please find the val_loss plot at (Project/plots/03_Tuning))
+Validation Losses for different Approaches :
+Changing Number of Layers (4): 0.17088524997234344
+Changing Number Of Nodes(on Base Model): 0.1869492381811142
+Changing Batch Sizes : 0.9273497462272644
+Changing Optimizers : 0.2500722110271454
+Final Model:0.1527889221906662
+
+#Regression : I started from a base model and build on it comparing each approaches with the validation loss. Since I dealt with Deep Learning Models, it meant substantially more runtime.
+I used differnt representaion models (1,2,3), changed optimizers, added callbacks and dropouts and generated the best model Final_Model_regression after batch normalizing .
+(In the code, the plot is commented out so as to measure the pipeline, Please find the val_loss plot at (Project/plots/03_Tuning))
+
+Validation Losses of Different Approaches :
+
+One Representation Model : 0.5211682915687561
+Two Representation Model : 0.521885335445404
+Three Representation Model : 0.5249411463737488
+Optimized Model : 0.46790364384651184
+Adding Callbacks with Validation Set : 0.4751804769039154 (not a seperate Model but a method to achieve the final model)
+After Adding Dropout : 0.47221213579177856
+Batch Normalization : 0.4742
+Final Model : 0.26413536071777344 (Loss , Final Model is streamlined with al above best features)
+
+## 04_Debug
+
+Debugging was done for both Classfication and Regression Model and the results are Below:
+The Final Classification Model Results :
+Accuracy : 95.15384615384616
+Balanced Accuracy :  91.25577909071441
+Confusion Matrix [[965   9]
+ [ 54 272]]
+Classification Report               precision    recall  f1-score   support
+
+           0       0.95      0.99      0.97       974
+           1       0.97      0.83      0.90       326
+
+    accuracy                           0.95      1300
+   macro avg       0.96      0.91      0.93      1300
+weighted avg       0.95      0.95      0.95      1300
+
+Average Precision 0.8491711493536701
+
+The Final Regression Model Results :
+
+Final Regression model score (R2): 0.3213893003869255
+Final Regression model score (MAE): 0.5229203370901254
+Final Regression model score (MSE): 0.4990976907809902
+Residual Error 3.002124309539795
+
+
+
+
+
 
 
 ## Parallelization
 
-The last part was to build the whole ML pipeline with the found data tuning steps and models. We built the pipeline to be able to run it both in sequential and parallel mode. The pipeline consists of generating and transforming the data, building the models, find the best model parameters for the regression, and evaluating the results. Since plotting multiple explanation plots did not work in our pipeline, we excluded it from our pipeline (but you can see the explanation plots in AMLS_SS22/plots/explanation).
+The last part was to build the whole ML pipeline with the found data tuning steps and models. I built the pipeline to be able to run it both in sequential and parallel mode.
+But the paralell preprocessing was not successful, so omitted it.
 
-In the end, the sequential mode had a runtime of of ~204 seconds. The parallel mode with 5 cores had a runtime of ~27.5 seconds (see AMLS_SS22/plots/final_run). Increasing th e number of cores to 10 just improved the runtime by 2s.
+The Time for Sequential Execution : 
+
 
 
 ## Running the code
@@ -52,7 +106,7 @@ To run the ML pipeline, navigate to AMLS_SS22/src and execute either "python3 05
 
 ## Scoring and evaluation
 
- We reached a classification accuracy of 0.935384 for predicting the wine type and a MSE of 0.4726 for predicting the wine quality.
+ We reached a classification accuracy of 0.9515384615384616 for predicting the wine type and a MSE of 0.4726 for predicting the wine quality.
 
 
 
