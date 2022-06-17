@@ -24,6 +24,14 @@ except AttributeError:
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
 
+Tuning = __import__('03_Tuning')
+try:
+    attrlist = data_prep.__all__
+except AttributeError:
+    attrlist = dir(data_prep)
+for attr in attrlist:
+    globals()[attr] = getattr(data_prep, attr)
+
 ##################################################################################################
 # ************************* Classification Model Evaluation ***************************************
 ##################################################################################################
@@ -40,11 +48,12 @@ json_file.close()
 loaded_classifcation_model = model_from_json(loaded_classifcation_model_json)
 # load weights into new model
 loaded_classifcation_model.load_weights("classification_model.h5")
-predictions = loaded_classifcation_model.predict(X_test)
 print("Loaded model from disk")
 
 
-def Accuracy():
+def Accuracy(model):
+    predictions = model.predict(X_test)
+
     accuracy_score = metrics.accuracy_score(y_test, predictions.round(),
                                             normalize=True, sample_weight=None)
     balanced_accuracy_score = metrics.balanced_accuracy_score(y_test, predictions.round(),
@@ -53,19 +62,24 @@ def Accuracy():
     print("Balanced Accuracy : ", balanced_accuracy_score*100)
 
 
-def ConfusionMatrix():
+def ConfusionMatrix(model):
+    predictions = model.predict(X_test)
+
     matrix = metrics.confusion_matrix(y_test, predictions.round(
     ), labels=None, sample_weight=None, normalize=None)
     print(matrix)
 
 
-def ClassificationReport():
+def ClassificationReport(model):
+    predictions = model.predict(X_test)
 
     report = classification_report(y_test, predictions.round())
     print(report)
 
 
-def Precission_Accuracy():
+def Precission_Accuracy(model):
+    predictions = model.predict(X_test)
+
     avg_precision = metrics.average_precision_score(
         y_test, predictions.round(), average='macro', pos_label=1, sample_weight=None)
     print("Average Precision", avg_precision)
@@ -104,50 +118,58 @@ json_file.close()
 loaded_model = model_from_json(loaded_model_json)
 # load weights into new model
 loaded_model.load_weights("regression_model.h5")
-predictions_regression = loaded_model.predict(X_test_reg)
 
 print("Loaded model from disk")
 
 
-def MeanAbsolute_Error():
+def MeanAbsolute_Error(model):
+    predictions_regression = model.predict(X_test_reg)
+
     # Evaluate
     model_score = mean_absolute_error(y_test_reg, predictions_regression)
     print("Final Regression model score (MAE):", model_score)
 
 
-def MeanSquaredError():
+def MeanSquaredError(model):
+    predictions_regression = model.predict(X_test_reg)
+
     # Evaluate
     model_score = mean_squared_error(y_test_reg, predictions_regression)
     print("Final Regression model score (MSE):", model_score)
 
 
-def R2Matrics():
+def R2Matrics(model):
+    predictions_regression = model.predict(X_test_reg)
+
     # Evaluate
     model_score = r2_score(y_test_reg, predictions_regression)
     print("Final Regression model score (R2):", model_score)
 
 
-def MaxResidualError():
+def MaxResidualError(model):
+    predictions_regression = model.predict(X_test_reg)
+
     residual_error = metrics.max_error(y_test_reg, predictions_regression)
     print("Residual Error", residual_error)
 
 
 def Evaluate_Regression_Model():
+    regression_model = Tuning.Regression_Tuning()
     print("The Final Regression Model Results : ")
-    R2Matrics()
-    MeanAbsolute_Error()
-    MeanSquaredError()
-    MaxResidualError()
+    R2Matrics(regression_model)
+    MeanAbsolute_Error(regression_model)
+    MeanSquaredError(regression_model)
+    MaxResidualError(regression_model)
 
 
 def Evaluate_Classification_Model():
+    classification_model = Tuning.Classification_Tuning()
     print("The Final Classification Model Results : ")
 
-    Accuracy()
-    ConfusionMatrix()
-    ClassificationReport()
-    Precission_Accuracy()
+    Accuracy(classification_model)
+    ConfusionMatrix(classification_model)
+    ClassificationReport(classification_model)
+    Precission_Accuracy(classification_model)
 
 
-Evaluate_Classification_Model()
-Evaluate_Regression_Model()
+# Evaluate_Regression_Model()

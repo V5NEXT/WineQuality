@@ -79,12 +79,12 @@ def BaseClassificationModel(input_shape, layer1, layer2, epochs, batchsize, opti
     plt.ylabel('Error')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    # plt.show() Plot Commented for Checking runtime
 
     print("Minimum Validation Loss: {:0.4f}".format(
         history_frame['val_loss'].min()))
 
-    return model
+    return history_frame, model
 
 
 ##################################################################################################

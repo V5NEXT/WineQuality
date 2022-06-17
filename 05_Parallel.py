@@ -4,6 +4,7 @@ from keras.models import model_from_json
 import shap
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys
 
 
 # Matplotlib defaults
@@ -24,21 +25,25 @@ except AttributeError:
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
 
+debug = __import__('04_Debug')
+try:
+    attrlist = data_prep.__all__
+except AttributeError:
+    attrlist = dir(data_prep)
+for attr in attrlist:
+    globals()[attr] = getattr(data_prep, attr)
+
 
 combined_dataset = data_prep.get_combined_dataset()
 ds_train, ds_valid, ds_test = data_prep.split_data_regression(
     combined_dataset)
 ds_train = ds_train.append(ds_valid)
 X_train, X_test, y_train, y_test = data_prep.load_data(ds_train, ds_test)
-# load json and create model
 json_file = open('regression_model.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
-# load weights into new model
 loaded_model.load_weights("regression_model.h5")
-
-print("Loaded model from disk")
 
 
 def Shap_processing_Regression():
@@ -118,4 +123,20 @@ def Shap_processing_Regression():
                     X_test_frame[X_test_frame['white'] == 1].iloc[INSTANCE_NUM, :-2])
 
 
-Shap_processing_Regression()
+# Shap_processing_Regression()
+
+
+def EDA():
+    data_prep.evaluating_dataset()
+
+
+def Sequential():
+    debug.Evaluate_Classification_Model()  # 38seconds
+    # debug.Evaluate_Regression_Model()
+
+
+if __name__ == '__main__':
+    globals()[sys.argv[1]]()
+
+
+Sequential()

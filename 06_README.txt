@@ -45,14 +45,14 @@ In the end, the sequential mode had a runtime of of ~204 seconds. The parallel m
 
 ## Running the code
 
-There are basically two interesting modes to run the source code. To run the data exploration, navigate to AMLS_SS22/src and execute "python3 05_Paralell.py explore", which will generate plots and the summary statistics. 
+There are basically two interesting modes to run the source code. To run the data exploration, navigate to AMLS_SS22/src and execute "python3 05_Paralell.py EDA", which will generate plots and the summary statistics. 
 
 To run the ML pipeline, navigate to AMLS_SS22/src and execute either "python3 05_Paralell.py seq" (for sequential mode) or "python3 05_Paralell.py par 5" (for paralell mode, where 5 indicates the number of cores that should be used). 
 
 
 ## Scoring and evaluation
 
-The final scores can be found in AMLS_SS22/plots/final_run/. We reached a classification accuracy of 0.991 for predicting the wine type and a MSE of 0.345 for predicting the wine quality.
+ We reached a classification accuracy of 0.935384 for predicting the wine type and a MSE of 0.4726 for predicting the wine quality.
 
 
 
