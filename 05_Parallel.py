@@ -26,6 +26,15 @@ except AttributeError:
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
 
+Tuning = __import__('03_Tuning')
+try:
+    attrlist = data_prep.__all__
+except AttributeError:
+    attrlist = dir(data_prep)
+for attr in attrlist:
+    globals()[attr] = getattr(data_prep, attr)
+
+
 debug = __import__('04_Debug')
 try:
     attrlist = data_prep.__all__
@@ -40,11 +49,6 @@ ds_train, ds_valid, ds_test = data_prep.split_data_regression(
     combined_dataset)
 ds_train = ds_train.append(ds_valid)
 X_train, X_test, y_train, y_test = data_prep.load_data(ds_train, ds_test)
-json_file = open('regression_model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
-loaded_model.load_weights("regression_model.h5")
 
 
 def Shap_processing_Regression():
@@ -63,7 +67,7 @@ def Shap_processing_Regression():
 
     # Summarize the training set to accelerate analysis
     X_train_frame = shap.kmeans(X_train_frame.values, 25)
-
+    loaded_model = Tuning.Regression_Tuning()
     # Instantiate an explainer with the model predictions and training data (or training data summary)
     explainer = shap.KernelExplainer(loaded_model.predict, X_train_frame)
 

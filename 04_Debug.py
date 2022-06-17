@@ -101,17 +101,6 @@ X_train_reg, X_test_reg, y_train_reg, y_test_reg = data_prep.load_data(
     ds_train, ds_test)
 
 
-# load json and create model
-json_file = open('regression_model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
-# load weights into new model
-loaded_model.load_weights("regression_model.h5")
-
-print("Loaded model from disk")
-
-
 def MeanAbsolute_Error(model):
     predictions_regression = model.predict(X_test_reg)
 
