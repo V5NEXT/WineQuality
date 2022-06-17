@@ -296,3 +296,6 @@ def split_dataset_classification():
                                                       test_size=0.25, random_state=8)  # 0.25 x 0.8 = 0.2
 
     return X_train, X_test, y_train, y_test, X_val, y_val
+
+
+# evaluating_dataset()

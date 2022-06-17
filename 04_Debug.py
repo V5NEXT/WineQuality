@@ -161,6 +161,3 @@ def Evaluate_Classification_Model():
     ConfusionMatrix(classification_model)
     ClassificationReport(classification_model)
     Precission_Accuracy(classification_model)
-
-
-Evaluate_Regression_Model()

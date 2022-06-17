@@ -95,18 +95,22 @@ But the paralell preprocessing was not successful, so omitted it.
 
 The Time for Sequential Execution : 
 
+Sequential Execution time 897.229100227356s
+Sequential Execution time Classification 34.427135944366455s
+Sequential Execution time Regression 862.8019642829895s
+
 
 
 ## Running the code
 
-There are basically two interesting modes to run the source code. To run the data exploration, navigate to AMLS_SS22/src and execute "python3 05_Paralell.py EDA", which will generate plots and the summary statistics. 
+To run the code(through sequential) head on to Project Folder and run python .\05_Parallel.py
+(the plots are commented) to check the run time.
 
-To run the ML pipeline, navigate to AMLS_SS22/src and execute either "python3 05_Paralell.py seq" (for sequential mode) or "python3 05_Paralell.py par 5" (for paralell mode, where 5 indicates the number of cores that should be used). 
-
+To run the visualization part run python .\01_DataPrep.py (after uncommenting function evaluating_dataset())
 
 ## Scoring and evaluation
 
- We reached a classification accuracy of 0.9515384615384616 for predicting the wine type and a MSE of 0.4726 for predicting the wine quality.
+We reached a classification accuracy of 0.9515384615384616 for predicting the wine type and a MSE of 0.4726 for predicting the wine quality.
 
 
 

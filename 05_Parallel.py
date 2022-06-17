@@ -129,8 +129,26 @@ def EDA():
 
 
 def Sequential():
-    debug.Evaluate_Classification_Model()  # 38seconds
+    start_Seq = time.time()
+    start_Seq_classification = time.time()
+
+    debug.Evaluate_Classification_Model()
+    end_Seq_classification = time.time()
+
+    start_Seq_regression = time.time()
+
     debug.Evaluate_Regression_Model()
+    end_Seq_regression = time.time()
+    end_Seq = time.time()
+
+    Sequential_Time = end_Seq-start_Seq
+    Sequential_Time_Classification = end_Seq_classification - start_Seq_classification
+    Sequential_Time_Regression = end_Seq_regression - start_Seq_regression
+
+    print("Sequential Execution time", Sequential_Time)
+    print("Sequential Execution time Classification",
+          Sequential_Time_Classification)
+    print("Sequential Execution time Regression", Sequential_Time_Regression)
 
 
 Sequential()
